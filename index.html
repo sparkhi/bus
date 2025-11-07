@@ -58,8 +58,14 @@
         const filtered = data.filter(bus => bus.lineName === targetLineName);
 
         if (filtered.length === 0) {
+          const maxTime = Math.max(...data.map(b => new Date(b.expectedArrival).getTime()));
+          const formattedTime = new Date(maxTime).toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
           document.getElementById("output").innerHTML =
-            `<p>No arrivals found for line <strong>${targetLineName}</strong>.</p>`;
+            `<p>No arrivals found for line <strong>${targetLineName}</strong> until <strong>${formattedTime}</strong>.</p>`;
           return;
         }
 
@@ -69,7 +75,7 @@
         // Build readable list
         const html = filtered.map(bus => `
           <li>
-            <strong>${bus.lineName}</strong> arriving in: ${Math.round((new Date(bus.expectedArrival) - new Date()) / 60000)} min
+            <strong>${bus.lineName} - (${bus.vehicleId})</strong> arriving in: ${Math.round((new Date(bus.expectedArrival) - new Date()) / 60000)} min
           </li>
         `).join("");
 
