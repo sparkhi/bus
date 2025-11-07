@@ -1,96 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TfL Bus Arrivals (Filtered)</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-    h1 { text-align: center; }
-    pre {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 1rem;
-      border-radius: 6px;
-      overflow-x: auto;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      background: #fff;
-      margin: 0.5rem 0;
-      padding: 0.75rem;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-    }
-  </style>
-</head>
-<body>
-  <p>Arrivals at stop: <code>Wallington Green / Croydon Road</code> towards Sutton for <strong>SL7</strong>…</p>
-  <div id="timestamp"></div>
-
-  <div id="output"><em>Loading...</em></div>
-
-  <script>
-    const apiUrl = "https://api.tfl.gov.uk/StopPoint/490014137W/Arrivals";
-    const targetLineName = "SL7";
-
-    async function loadArrivals() {
-      try {
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error("Network error: " + res.status);
-        const data = await res.json();
-
-        document.getElementById("timestamp").innerHTML = 
-          `<p>Data retrieved at: <code>${new Date().toLocaleString()}</code></p>`;
-
-        // ✅ Filter by lineId
-        const filtered = data.filter(bus => bus.lineName === targetLineName);
-
-        if (filtered.length === 0) {
-          const maxTime = Math.max(...data.map(b => new Date(b.expectedArrival).getTime()));
-          const formattedTime = new Date(maxTime).toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          });
-          document.getElementById("output").innerHTML =
-            `<p>No arrivals found for <strong>${targetLineName}</strong> until <strong>${formattedTime}</strong>.</p>`;
-          return;
-        }
-
-        // Sort by expected arrival time
-        filtered.sort((a, b) => new Date(a.expectedArrival) - new Date(b.expectedArrival));
-
-        // Build readable list
-        const html = filtered.map(bus => `
-          <li>
-            <strong>${bus.lineName} - (${bus.vehicleId})</strong> arriving in: ${Math.round((new Date(bus.expectedArrival) - new Date()) / 60000)} min
-          </li>
-        `).join("");
-
-
-        document.getElementById("output").innerHTML = `
-          <ul>${html}</ul>
-          <hr>
-          <small>Source: <a href="https://api.tfl.gov.uk" target="_blank">TFL API</a></small>
-        `;
-      } catch (err) {
-        document.getElementById("output").textContent = "Error: " + err.message;
-      }
-    }
-
-    loadArrivals();
-  </script>
-</body>
-</html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Bus Arrivals</title>
+        <style>
+        body { font-family: sans-serif; background: #ffffff; color: #000000; }
+        h2 { margin-bottom: 5px; }
+        p { font-size: 12px; margin-top: 0; }
+        table { border-collapse: collapse; width: 100%; font-size: 14px; }
+        th, td { border: 1px solid #000000; padding: 4px; text-align: left; }
+        th { background: #dddddd; }
+        </style>
+    </head>
+    <body>
+        <p>Arrivals at stop: <code>Wallington Green / Croydon Road</code> towards Sutton for <strong>SL7</strong>…</p>
+        <p>Updated: 2025-11-07 18:11:47.484312+00:00</p>
+        <ul><li><strong>SL7 - (LJ61NWU)</strong> arriving in: 17 min</li>
+<li><strong>SL7 - (LJ61NWD)</strong> arriving in: 19 min</li></ul>
+        <p><small>Refresh the page to see updates.</small></p>
+    </body>
+    </html>
