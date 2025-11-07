@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TfL Arrivals Example</title>
+  <title>TfL Bus Arrivals (Filtered)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,16 +22,28 @@
       border-radius: 6px;
       overflow-x: auto;
     }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #fff;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
   </style>
 </head>
 <body>
-  <h1>Bus Arrivals – TfL API</h1>
-  <p>Fetching data from TfL StopPoint <code>490014137W</code>...</p>
+  <p>Arrivals at stop: <code>Wallington Green / Croydon Road</code> towards Sutton for <strong>SL7</strong>…</p>
+  <div id="timestamp"></div>
 
   <div id="output"><em>Loading...</em></div>
 
   <script>
     const apiUrl = "https://api.tfl.gov.uk/StopPoint/490014137W/Arrivals";
+    const targetLineName = "SL7";
 
     async function loadArrivals() {
       try {
@@ -39,21 +51,33 @@
         if (!res.ok) throw new Error("Network error: " + res.status);
         const data = await res.json();
 
+        document.getElementById("timestamp").innerHTML = 
+          `<p>Data retrieved at: <code>${new Date().toLocaleString()}</code></p>`;
+
+        // ✅ Filter by lineId
+        const filtered = data.filter(bus => bus.lineName === targetLineName);
+
+        if (filtered.length === 0) {
+          document.getElementById("output").innerHTML =
+            `<p>No arrivals found for line <strong>${targetLineName}</strong>.</p>`;
+          return;
+        }
+
         // Sort by expected arrival time
-        data.sort((a, b) => new Date(a.expectedArrival) - new Date(b.expectedArrival));
+        filtered.sort((a, b) => new Date(a.expectedArrival) - new Date(b.expectedArrival));
 
         // Build readable list
-        const html = data.map(bus => `
+        const html = filtered.map(bus => `
           <li>
-            <strong>${bus.lineName}</strong> to ${bus.destinationName}
-            — arriving in ${(Math.round((new Date(bus.expectedArrival) - new Date()) / 60000))} min
+            <strong>${bus.lineName}</strong> arriving in: ${Math.round((new Date(bus.expectedArrival) - new Date()) / 60000)} min
           </li>
         `).join("");
+
 
         document.getElementById("output").innerHTML = `
           <ul>${html}</ul>
           <hr>
-          <small>Data source: <a href="${apiUrl}" target="_blank">TfL Open API</a></small>
+          <small>Source: <a href="https://api.tfl.gov.uk" target="_blank">TFL API</a></small>
         `;
       } catch (err) {
         document.getElementById("output").textContent = "Error: " + err.message;
