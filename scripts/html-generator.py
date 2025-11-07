@@ -74,5 +74,5 @@ def build_html(buses):
 if __name__ == "__main__":
     data = get_bus_data()
     html = build_html(data)
-    with open("./../index.html", "w", encoding="utf-8") as f:
+    with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
