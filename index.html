@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TfL Arrivals Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    h1 { text-align: center; }
+    pre {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bus Arrivals – TfL API</h1>
+  <p>Fetching data from TfL StopPoint <code>490014137W</code>...</p>
+
+  <div id="output"><em>Loading...</em></div>
+
+  <script>
+    const apiUrl = "https://api.tfl.gov.uk/StopPoint/490014137W/Arrivals";
+
+    async function loadArrivals() {
+      try {
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("Network error: " + res.status);
+        const data = await res.json();
+
+        // Sort by expected arrival time
+        data.sort((a, b) => new Date(a.expectedArrival) - new Date(b.expectedArrival));
+
+        // Build readable list
+        const html = data.map(bus => `
+          <li>
+            <strong>${bus.lineName}</strong> to ${bus.destinationName}
+            — arriving in ${(Math.round((new Date(bus.expectedArrival) - new Date()) / 60000))} min
+          </li>
+        `).join("");
+
+        document.getElementById("output").innerHTML = `
+          <ul>${html}</ul>
+          <hr>
+          <small>Data source: <a href="${apiUrl}" target="_blank">TfL Open API</a></small>
+        `;
+      } catch (err) {
+        document.getElementById("output").textContent = "Error: " + err.message;
+      }
+    }
+
+    loadArrivals();
+  </script>
+</body>
+</html>
