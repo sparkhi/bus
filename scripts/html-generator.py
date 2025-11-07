@@ -24,8 +24,8 @@ def parse_utc_time(iso_string):
 def generate_list_item(bus):
     line = bus.get("lineName", "N/A")
     vehicle = bus.get("vehicleId", "Unknown")
-    iso_str = bus.get("expectedArrival", "")
-    dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00")).astimezone(timezone.utc)
+    iso_format_date = bus.get("expectedArrival", "")
+    dt = datetime.fromisoformat(iso_format_date.replace("Z", "+00:00")).astimezone(timezone.utc)
     time_str = dt.strftime("%H:%M")
     return f"<li><strong>{line} - ({vehicle})</strong> arriving at: {time_str} min</li>"
 
