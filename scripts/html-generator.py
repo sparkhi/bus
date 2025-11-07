@@ -24,13 +24,10 @@ def parse_utc_time(iso_string):
 def generate_list_item(bus):
     line = bus.get("lineName", "N/A")
     vehicle = bus.get("vehicleId", "Unknown")
-    arrival_time = parse_utc_time(bus.get("expectedArrival", ""))
-    if arrival_time:
-        minutes = round((arrival_time - datetime.now(timezone.utc)).total_seconds() / 60)
-        minutes = max(minutes, 0)  # Avoid negative numbers
-    else:
-        minutes = "N/A"
-    return f"<li><strong>{line} - ({vehicle})</strong> arriving in: {minutes} min</li>"
+    iso_str = bus.get("expectedArrival", "")
+    dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00")).astimezone(timezone.utc)
+    time_str = dt.strftime("%H:%M")
+    return f"<li><strong>{line} - ({vehicle})</strong> arriving at: {time_str} min</li>"
 
 def generate_list_items(sorted_buses):
     if sorted_buses:
