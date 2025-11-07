@@ -5,8 +5,11 @@ on:
     - cron: "*/2 * * * *"  # every 2 minutes
   workflow_dispatch:       # allows manual trigger
 
+permissions:
+  contents: write
+
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
 
     steps:
