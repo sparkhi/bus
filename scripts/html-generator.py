@@ -62,7 +62,7 @@ def build_html(buses):
         <p>Arrivals at stop: <code>Wallington Green / Croydon Road</code> towards Sutton for <strong>SL7</strong>…</p>
         <p>Updated: {now}</p>
         <ul>{list_items}</ul>
-        <p><small>Refresh the page to see updates.</small></p>
+        <p><small>This page is updated every 5 minutes. Data from <a href="https://api.tfl.gov.uk/">TFL</a></small></p>
     </body>
     </html>"""
 
